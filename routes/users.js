@@ -24,28 +24,13 @@ router.post('/register', (req, res) => {
 
 // Login Handle
 router.post('/login', (req, res, next) => {
-  passport.authenticate('local', (err, user, info) => {
-    if (err) { 
-      console.error('Login error:', err);
-      return next(err); 
-    }
-    
-    if (!user) {
-      req.flash('error_msg', info.message || 'Innskráning mistókst');
-      return res.redirect('/users/login');
-    }
-    
-    // Log user details for debugging
-    console.log('Login successful for:', user.email);
-    console.log('isAdmin status:', user.isAdmin);
-    
-    req.logIn(user, function(err) {
-      if (err) { 
-        console.error('Session error:', err);
-        return next(err); 
-      }
-      return res.redirect('/dashboard');
-    });
+  // Log attempt for debugging
+  console.log('Login attempt for email:', req.body.email);
+  
+  passport.authenticate('local', {
+    successRedirect: '/dashboard',
+    failureRedirect: '/users/login',
+    failureFlash: true
   })(req, res, next);
 });
 

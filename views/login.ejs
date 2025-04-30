@@ -5,6 +5,16 @@
         <h3><i class="fas fa-sign-in-alt me-2"></i>Innskráning</h3>
       </div>
       <div class="card-body">
+        <% if(error_msg != '') { %>
+          <div class="alert alert-danger">
+            <%= error_msg %>
+          </div>
+        <% } %>
+        <% if(error != '') { %>
+          <div class="alert alert-danger">
+            <%= error %>
+          </div>
+        <% } %>
         <form action="/users/login" method="POST">
           <div class="mb-3">
             <label for="email" class="form-label">Netfang</label>

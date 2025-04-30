@@ -46,4 +46,22 @@ router.get('/manage-points', ensureAdmin, async (req, res) => {
   }
 });
 
+// Debug route - only in development
+if (process.env.NODE_ENV !== 'production') {
+  router.get('/debug-users', async (req, res) => {
+    try {
+      const User = require('../models/User');
+      const users = await User.find().select('email name isAdmin -_id');
+      res.json({ 
+        message: 'User database debug information', 
+        count: users.length,
+        users 
+      });
+    } catch (err) {
+      console.error('Debug route error:', err);
+      res.status(500).json({ error: err.message });
+    }
+  });
+}
+
 module.exports = router; 
