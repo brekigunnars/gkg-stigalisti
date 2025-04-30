@@ -1,0 +1,104 @@
+<div class="row mb-4">
+  <div class="col-md-12">
+    <div class="card shadow-sm">
+      <div class="card-body text-center">
+        <h1 class="mb-3"><i class="fas fa-trophy text-warning me-2"></i>Stigalisti GKG</h1>
+        <p class="lead">Núverandi staða kylfinga í GKG</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<% if(players.length > 0) { %>
+  <!-- Top 3 players -->
+  <div class="row mb-4">
+    <% 
+      let topPlayers = players.slice(0, 3);
+      let positions = ["2. sæti", "1. sæti", "3. sæti"];
+      let colors = ["btn-info", "btn-primary", "btn-success"];
+      
+      // If we have 3 players, show 2nd, 1st, 3rd with the winner in the middle
+      // If fewer than 3, adjust accordingly
+      if(topPlayers.length === 3) {
+        // Swap to get 2nd, 1st, 3rd positions visually
+        let temp = topPlayers[0];
+        topPlayers[0] = topPlayers[1];
+        topPlayers[1] = temp;
+      }
+      
+      for(let i = 0; i < topPlayers.length && i < 3; i++) {
+        let player = topPlayers[i];
+        let position = positions[i];
+        let color = colors[i];
+        let isFirst = position === "1. sæti";
+    %>
+      <div class="col-md-<%= isFirst ? '4' : '4' %>">
+        <div class="card player-card shadow text-center <%= isFirst ? 'border-primary' : '' %>" 
+             style="<%= isFirst ? 'transform: translateY(-15px);' : '' %>">
+          <div class="card-header <%= color %> text-white">
+            <h3><%= position %></h3>
+          </div>
+          <div class="card-body">
+            <h4 class="card-title"><%= player.name %></h4>
+            <p class="display-4 fw-bold text-<%= isFirst ? 'primary' : 'dark' %>"><%= player.points %></p>
+            <p class="text-muted">stig</p>
+          </div>
+        </div>
+      </div>
+    <% } %>
+  </div>
+
+  <!-- Remaining players -->
+  <div class="row">
+    <div class="col-md-12">
+      <div class="card shadow-sm">
+        <div class="card-header bg-light">
+          <h3>Stigatafla</h3>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-striped table-hover">
+              <thead>
+                <tr>
+                  <th>Sæti</th>
+                  <th>Kylfingur</th>
+                  <th class="text-end">Stig</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% players.forEach((player, index) => { %>
+                  <tr>
+                    <td>
+                      <span class="badge bg-secondary">#<%= index + 1 %></span>
+                    </td>
+                    <td><%= player.name %></td>
+                    <td class="text-end">
+                      <span class="badge <%= player.points > 0 ? 'bg-success' : 'bg-secondary' %> point-badge">
+                        <%= player.points %>
+                      </span>
+                    </td>
+                  </tr>
+                <% }); %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+<% } else { %>
+  <div class="row">
+    <div class="col-md-12">
+      <div class="card shadow-sm">
+        <div class="card-body text-center">
+          <p class="lead">Engir kylfingar hafa verið skráðir enn.</p>
+          <% if(typeof user !== 'undefined' && user) { %>
+            <a href="/players/add" class="btn btn-primary">
+              <i class="fas fa-user-plus me-2"></i>Skrá fyrsta kylfing
+            </a>
+          <% } %>
+        </div>
+      </div>
+    </div>
+  </div>
+<% } %> 

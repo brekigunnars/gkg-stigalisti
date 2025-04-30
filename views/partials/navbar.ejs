@@ -1,0 +1,44 @@
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <img src="/images/GKG-logo-2015-Mobile.png" alt="GKG Logo" height="40" class="me-2">Stigalisti GKG
+    </a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav">
+        <li class="nav-item">
+          <a class="nav-link" href="/">Stigatafla</a>
+        </li>
+        <% if (typeof user !== 'undefined' && user && user.isAdmin) { %>
+          <li class="nav-item">
+            <a class="nav-link" href="/dashboard">Stjórnborð</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/players">Kylfingar</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/manage-points">Stiga Stjórnun</a>
+          </li>
+        <% } %>
+      </ul>
+      <ul class="navbar-nav ms-auto">
+        <% if (typeof user !== 'undefined' && user) { %>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              <i class="fas fa-user me-1"></i><%= user.name %>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+              <li><a class="dropdown-item" href="/users/logout">Útskrá</a></li>
+            </ul>
+          </li>
+        <% } else { %>
+          <li class="nav-item">
+            <a class="nav-link" href="/users/login">Innskráning</a>
+          </li>
+        <% } %>
+      </ul>
+    </div>
+  </div>
+</nav> 

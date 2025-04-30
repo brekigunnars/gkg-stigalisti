@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <link rel="stylesheet" href="https://bootswatch.com/5/flatly/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <!-- Favicon -->
+  <link rel="icon" href="/images/GKG-logo-2015-Mobile.png" type="image/png">
+  <link rel="shortcut icon" href="/images/GKG-logo-2015-Mobile.png" type="image/png">
+  <title>GKG stigalisti</title>
+  <style>
+    body {
+      padding-top: 70px;
+      padding-bottom: 30px;
+    }
+    .table-striped tbody tr:nth-of-type(odd) {
+      background-color: rgba(0, 0, 0, 0.05);
+    }
+    .point-badge {
+      font-size: 1.2em;
+      font-weight: bold;
+    }
+    .ranking {
+      font-size: 1.5em;
+      font-weight: bold;
+    }
+    .player-card {
+      transition: transform 0.3s;
+    }
+    .player-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+  </style>
+</head>
+<body>
+  <%- include('partials/navbar') %>
+  <div class="container">
+    <%- include('partials/messages') %>
+    <%- body %>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // Enable all tooltips
+    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+    const tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+      return new bootstrap.Tooltip(tooltipTriggerEl)
+    })
+  </script>
+</body>
+</html> 

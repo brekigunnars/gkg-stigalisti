@@ -1,0 +1,65 @@
+<div class="row mt-5">
+  <div class="col-md-6 mx-auto">
+    <div class="card shadow">
+      <div class="card-header bg-primary text-white">
+        <h3><i class="fas fa-user-plus me-2"></i>Nýskráning</h3>
+      </div>
+      <div class="card-body">
+        <form action="/users/register" method="POST">
+          <div class="mb-3">
+            <label for="name" class="form-label">Nafn</label>
+            <input
+              type="name"
+              id="name"
+              name="name"
+              class="form-control"
+              placeholder="Sláðu inn nafn"
+              value="<%= typeof name != 'undefined' ? name : '' %>"
+              required
+            />
+          </div>
+          <div class="mb-3">
+            <label for="email" class="form-label">Netfang</label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              class="form-control"
+              placeholder="Sláðu inn netfang"
+              value="<%= typeof email != 'undefined' ? email : '' %>"
+              required
+            />
+          </div>
+          <div class="mb-3">
+            <label for="password" class="form-label">Lykilorð</label>
+            <input
+              type="password"
+              id="password"
+              name="password"
+              class="form-control"
+              placeholder="Búðu til lykilorð"
+              required
+            />
+          </div>
+          <div class="mb-3">
+            <label for="password2" class="form-label">Staðfesta lykilorð</label>
+            <input
+              type="password"
+              id="password2"
+              name="password2"
+              class="form-control"
+              placeholder="Staðfestu lykilorð"
+              required
+            />
+          </div>
+          <button type="submit" class="btn btn-primary btn-block w-100">
+            Nýskrá
+          </button>
+        </form>
+        <p class="mt-4">
+          Ertu nú þegar með aðgang? <a href="/users/login">Skráðu þig inn hér</a>
+        </p>
+      </div>
+    </div>
+  </div>
+</div> 

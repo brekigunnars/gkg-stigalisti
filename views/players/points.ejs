@@ -1,0 +1,145 @@
+<div class="row mb-4">
+  <div class="col-md-12">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <h1 class="mb-3">
+          <i class="fas fa-star text-warning me-2"></i>Stigastjórnun fyrir <%= player.name %>
+        </h1>
+        <p class="lead">Núverandi stig: <span class="badge <%= player.points > 0 ? 'bg-success' : 'bg-secondary' %> point-badge"><%= player.points %></span></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-md-6">
+    <div class="card shadow-sm mb-4">
+      <div class="card-header bg-success text-white">
+        <h3><i class="fas fa-plus-circle me-2"></i>Bæta við stigum</h3>
+      </div>
+      <div class="card-body">
+        <form action="/players/<%= player._id %>/points" method="POST">
+          <div class="mb-3">
+            <label for="add-points" class="form-label">Stig til að bæta við</label>
+            <input 
+              type="number" 
+              class="form-control" 
+              id="add-points" 
+              name="points"
+              value="1"
+              min="1"
+              required
+            >
+          </div>
+          
+          <div class="mb-3">
+            <label for="add-reason" class="form-label">Ástæða</label>
+            <input 
+              type="text" 
+              class="form-control" 
+              id="add-reason" 
+              name="reason"
+              placeholder="t.d., Mótssigur, Góður árangur, o.s.frv."
+            >
+          </div>
+          
+          <div class="mb-3">
+            <button type="submit" class="btn btn-success w-100">
+              <i class="fas fa-plus-circle me-2"></i>Bæta við stigum
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  
+  <div class="col-md-6">
+    <div class="card shadow-sm mb-4">
+      <div class="card-header bg-danger text-white">
+        <h3><i class="fas fa-minus-circle me-2"></i>Draga frá stig</h3>
+      </div>
+      <div class="card-body">
+        <form action="/players/<%= player._id %>/points" method="POST">
+          <div class="mb-3">
+            <label for="deduct-points" class="form-label">Stig til að draga frá</label>
+            <input 
+              type="number" 
+              class="form-control" 
+              id="deduct-points" 
+              name="points"
+              value="-1"
+              max="-1"
+              required
+            >
+            <div class="form-text">Sláðu inn neikvæða tölu til að draga frá stig</div>
+          </div>
+          
+          <div class="mb-3">
+            <label for="deduct-reason" class="form-label">Ástæða</label>
+            <input 
+              type="text" 
+              class="form-control" 
+              id="deduct-reason" 
+              name="reason"
+              placeholder="t.d., Refsistig, Mætti ekki á æfingu, o.s.frv."
+            >
+          </div>
+          
+          <div class="mb-3">
+            <button type="submit" class="btn btn-danger w-100">
+              <i class="fas fa-minus-circle me-2"></i>Draga frá stig
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-md-12">
+    <div class="card shadow-sm">
+      <div class="card-header bg-info text-white">
+        <h3><i class="fas fa-history me-2"></i>Stigasaga</h3>
+      </div>
+      <div class="card-body">
+        <% if(player.pointsHistory && player.pointsHistory.length > 0) { %>
+          <div class="table-responsive">
+            <table class="table table-striped table-hover">
+              <thead>
+                <tr>
+                  <th>Dagsetning</th>
+                  <th>Stigabreyting</th>
+                  <th>Ástæða</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% player.pointsHistory.slice().reverse().forEach(history => { %>
+                  <tr>
+                    <td><%= new Date(history.date).toLocaleDateString() %></td>
+                    <td>
+                      <span class="badge <%= history.points > 0 ? 'bg-success' : 'bg-danger' %>">
+                        <%= history.points > 0 ? '+' + history.points : history.points %>
+                      </span>
+                    </td>
+                    <td><%= history.reason || 'Engin ástæða gefin' %></td>
+                  </tr>
+                <% }); %>
+              </tbody>
+            </table>
+          </div>
+        <% } else { %>
+          <p>Engin stigasaga er til fyrir þennan kylfing.</p>
+        <% } %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row mt-4">
+  <div class="col-md-12">
+    <a href="/manage-points" class="btn btn-secondary">
+      <i class="fas fa-arrow-left me-2"></i>Til baka í stigastjórnun
+    </a>
+  </div>
+</div> 
