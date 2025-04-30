@@ -24,9 +24,6 @@ router.post('/register', (req, res) => {
 
 // Login Handle
 router.post('/login', (req, res, next) => {
-  // Log attempt for debugging
-  console.log('Login attempt for email:', req.body.email);
-  
   passport.authenticate('local', {
     successRedirect: '/dashboard',
     failureRedirect: '/users/login',

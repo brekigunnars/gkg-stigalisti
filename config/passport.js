@@ -7,35 +7,25 @@ const User = require('../models/User');
 module.exports = function(passport) {
   passport.use(
     new LocalStrategy({ usernameField: 'email' }, (email, password, done) => {
-      // Log authentication attempt
-      console.log('Authenticating user:', email);
-      
       // Match user
       User.findOne({ email: email })
         .then(user => {
           if (!user) {
-            console.log('Email not found:', email);
             return done(null, false, { message: 'Netfang ekki skráð' });
           }
 
           // Match password
           bcrypt.compare(password, user.password, (err, isMatch) => {
-            if (err) {
-              console.error('Password comparison error:', err);
-              return done(err);
-            }
-            
+            if (err) throw err;
             if (isMatch) {
-              console.log('Password match for user:', email);
               return done(null, user);
             } else {
-              console.log('Password incorrect for user:', email);
               return done(null, false, { message: 'Lykilorð rangt' });
             }
           });
         })
         .catch(err => {
-          console.error('Database error during authentication:', err);
+          console.error('Error during authentication:', err);
           return done(err);
         });
     })
@@ -51,7 +41,6 @@ module.exports = function(passport) {
         done(null, user);
       })
       .catch(err => {
-        console.error('Error deserializing user:', err);
         done(err, null);
       });
   });

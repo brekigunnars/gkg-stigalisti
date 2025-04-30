@@ -65,10 +65,9 @@ app.use(methodOverride('_method'));
 app.use(session({
   secret: process.env.SESSION_SECRET || 'secret',
   resave: false,
-  saveUninitialized: false,
+  saveUninitialized: true,
   cookie: {
-    secure: process.env.NODE_ENV === 'production' && process.env.DISABLE_SECURE_COOKIE !== 'true',
-    sameSite: 'lax',
+    secure: false, // Disabled for now to ensure login works
     maxAge: 24 * 60 * 60 * 1000 // 24 hours
   }
 }));
