@@ -53,6 +53,9 @@
             font-weight: bold;
             border-radius: 8px 8px 0 0 !important;
         }
+        .player-row:nth-child(odd) {
+            background-color: rgba(9, 107, 57, 0.05);
+        }
         .footer {
             margin-top: 3rem;
             background-color: #333;
@@ -60,6 +63,18 @@
             padding: 2rem 0;
             text-align: center;
             border-radius: 8px;
+        }
+        .position {
+            font-weight: bold;
+            font-size: 1.2rem;
+            background: #096b39;
+            color: white;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
         }
     </style>
 </head>
@@ -71,26 +86,97 @@
             <p class="lead">Golfklúbbur GKG - Stöður kylfinga</p>
         </div>
 
-        <div class="text-center mb-5">
-            <a href="https://gkg-stigalisti.onrender.com" class="btn btn-success btn-lg px-4 py-3">
-                <i class="fas fa-trophy me-2"></i>Opna GKG Stigalista Forritið
-            </a>
-        </div>
-
-        <div class="row">
+        <div class="row mb-4">
             <div class="col-md-12">
                 <div class="card">
                     <div class="card-header">
-                        <h2 class="mb-0">Um stigalista GKG</h2>
+                        <h2 class="mb-0">Efstu kylfingar</h2>
                     </div>
                     <div class="card-body">
-                        <p>Velkomin á vefsíðu GKG stigalista. Þessi síða býður upp á eftirfarandi eiginleika:</p>
-                        <ul>
-                            <li>Opinberan stigalista fyrir alla kylfinga</li>
-                            <li>Persónulega stigasögu fyrir hvern kylfing</li>
-                            <li>Stjórnborð fyrir umsjónarmenn til að halda utan um stig</li>
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Sæti</th>
+                                        <th>Nafn</th>
+                                        <th>Stig</th>
+                                        <th>Forgjöf</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Sample data, replace with your actual data -->
+                                    <tr class="player-row">
+                                        <td><div class="position">1</div></td>
+                                        <td>Jón Jónsson</td>
+                                        <td>120</td>
+                                        <td>4.5</td>
+                                    </tr>
+                                    <tr class="player-row">
+                                        <td><div class="position">2</div></td>
+                                        <td>Gunnar Gunnarsson</td>
+                                        <td>115</td>
+                                        <td>5.2</td>
+                                    </tr>
+                                    <tr class="player-row">
+                                        <td><div class="position">3</div></td>
+                                        <td>Helga Helgadóttir</td>
+                                        <td>105</td>
+                                        <td>6.8</td>
+                                    </tr>
+                                    <tr class="player-row">
+                                        <td><div class="position">4</div></td>
+                                        <td>Sigríður Sigurðardóttir</td>
+                                        <td>98</td>
+                                        <td>7.3</td>
+                                    </tr>
+                                    <tr class="player-row">
+                                        <td><div class="position">5</div></td>
+                                        <td>Magnús Magnússon</td>
+                                        <td>92</td>
+                                        <td>8.1</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="mb-0">Um stigalistann</h2>
+                    </div>
+                    <div class="card-body">
+                        <p>Stigalistinn sýnir stöðu kylfinga í Golfklúbbi GKG. Stig eru veitt fyrir þátttöku og árangur í mótum klúbbsins.</p>
+                        <p>Stigalistinn er uppfærður reglulega eftir mót og önnur tilefni þar sem kylfingar geta aflað sér stiga.</p>
+                        <p>Hafðu samband við stjórn klúbbsins ef þú hefur spurningar varðandi stigagjöf eða stigalista.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h2 class="mb-0">Næstu viðburðir</h2>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                GKG mótaröð - 1. mót
+                                <span class="badge bg-primary rounded-pill">12. maí</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                Vormót GKG
+                                <span class="badge bg-primary rounded-pill">28. maí</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                GKG mótaröð - 2. mót
+                                <span class="badge bg-primary rounded-pill">10. júní</span>
+                            </li>
                         </ul>
-                        <p>Smelltu á hnappinn hér að ofan til að opna aðalsíðu stigalistans.</p>
                     </div>
                 </div>
             </div>
