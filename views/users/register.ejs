@@ -1,0 +1,54 @@
+<div class="container mt-4">
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <div class="card shadow-sm">
+         <div class="card-header bg-light">
+            <h3 class="mb-0">Nýskráning kylfings</h3>
+         </div>
+         <div class="card-body">
+            <form action="/users/register" method="POST">
+               <div class="mb-3">
+                  <label for="name" class="form-label">Fullt nafn *</label>
+                  <input type="text" class="form-control" id="name" name="name" required>
+               </div>
+               
+               <div class="mb-3">
+                  <label for="email" class="form-label">Netfang *</label>
+                  <input type="email" class="form-control" id="email" name="email" required>
+                  <div class="form-text">Þetta netfang verður notað til að skrá þig inn</div>
+               </div>
+               
+               <div class="mb-3">
+                  <label for="gender" class="form-label">Kyn *</label>
+                  <select class="form-select" id="gender" name="gender" required>
+                     <option value="">Veldu kyn...</option>
+                     <option value="male">Karlkyn</option>
+                     <option value="female">Kvenkyn</option>
+                  </select>
+               </div>
+               
+               <div class="mb-3">
+                  <label for="password" class="form-label">Lykilorð *</label>
+                  <input type="password" class="form-control" id="password" name="password" required>
+                  <div class="form-text">Lykilorð verður að vera að minnsta kosti 6 stafir</div>
+               </div>
+               
+               <div class="mb-3">
+                  <label for="password2" class="form-label">Staðfesta lykilorð *</label>
+                  <input type="password" class="form-control" id="password2" name="password2" required>
+               </div>
+
+               <div class="d-grid gap-2">
+                  <button type="submit" class="btn btn-primary">
+                     <i class="fas fa-user-plus me-2"></i>Nýskrá kylfing
+                  </button>
+               </div>
+            </form>
+            <p class="mt-4 text-center">
+              Ertu nú þegar með aðgang? <a href="/users/login">Skráðu þig inn hér</a>
+            </p>
+         </div>
+      </div>
+    </div>
+  </div>
+</div> 
