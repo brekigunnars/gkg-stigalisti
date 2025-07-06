@@ -1,19 +1,53 @@
 const express = require('express');
 const router = express.Router();
 const { ensureAuthenticated, ensureAdmin } = require('../config/auth');
-const Player = require('../models/Player');
+const User = require('../models/User');
+const bcrypt = require('bcryptjs');
 
-// Get all players
+// Get all players (admin only)
 router.get('/', ensureAdmin, async (req, res) => {
   try {
-    const players = await Player.find().sort({ name: 1 });
+    const players = await User.find({ role: 'player' }).sort({ name: 1 });
     res.render('players/index', {
       players,
-      title: 'All Players'
+      title: 'Allir kylfingar'
     });
   } catch (err) {
     console.error(err);
-    req.flash('error_msg', 'Error retrieving players');
+    res.status(500).send('Server Error');
+  }
+});
+
+// Get men's leaderboard
+router.get('/leaderboard/men', ensureAuthenticated, async (req, res) => {
+  try {
+    const players = await User.find({ gender: 'male', role: 'player' })
+      .sort({ points: -1 })
+      .limit(10);
+    res.render('players/leaderboard', {
+      players,
+      title: 'Men\'s Leaderboard'
+    });
+  } catch (err) {
+    console.error(err);
+    req.flash('error_msg', 'Error retrieving men\'s leaderboard');
+    res.redirect('/dashboard');
+  }
+});
+
+// Get women's leaderboard
+router.get('/leaderboard/women', ensureAuthenticated, async (req, res) => {
+  try {
+    const players = await User.find({ gender: 'female', role: 'player' })
+      .sort({ points: -1 })
+      .limit(10);
+    res.render('players/leaderboard', {
+      players,
+      title: 'Women\'s Leaderboard'
+    });
+  } catch (err) {
+    console.error(err);
+    req.flash('error_msg', 'Error retrieving women\'s leaderboard');
     res.redirect('/dashboard');
   }
 });
@@ -25,51 +59,42 @@ router.get('/add', ensureAdmin, (req, res) => {
   });
 });
 
-// Add player handle
+// Add new player (admin only)
 router.post('/', ensureAdmin, async (req, res) => {
   try {
-    const { name, email, phone, handicap, notes } = req.body;
+    const { name, gender, email, points } = req.body;
     
-    // Validation
-    let errors = [];
-    if (!name) {
-      errors.push({ msg: 'Name is required' });
-    }
-    
-    if (errors.length > 0) {
-      return res.render('players/add', {
-        errors,
-        name,
-        email,
-        phone,
-        handicap,
-        notes,
-        title: 'Add New Player'
-      });
-    }
-    
-    const newPlayer = new Player({
+    const userData = {
       name,
-      email,
-      phone,
-      handicap,
-      notes
-    });
-    
-    await newPlayer.save();
-    req.flash('success_msg', 'Player added successfully');
+      email: email || `${name.toLowerCase().replace(/\s+/g, '.')}@gkg.is`, // Generate email if not provided
+      password: await bcrypt.hash('changeme123', 10), // Default password
+      role: 'player',
+      gender,
+      points: parseInt(points) || 0,
+      isActive: true
+    };
+
+    // Set pointsLastUpdated if initial points are provided
+    if (userData.points > 0) {
+      userData.pointsLastUpdated = Date.now();
+    }
+
+    // Create new user with player role
+    const user = await User.create(userData);
+
+    req.flash('success', 'Kylfingur bætt við');
     res.redirect('/players');
   } catch (err) {
     console.error(err);
-    req.flash('error_msg', 'Error adding player');
-    res.redirect('/players/add');
+    req.flash('error', 'Villa kom upp við að bæta við kylfingi');
+    res.redirect('/players');
   }
 });
 
 // Edit player form
 router.get('/edit/:id', ensureAdmin, async (req, res) => {
   try {
-    const player = await Player.findById(req.params.id);
+    const player = await User.findById(req.params.id);
     if (!player) {
       req.flash('error_msg', 'Player not found');
       return res.redirect('/players');
@@ -86,115 +111,80 @@ router.get('/edit/:id', ensureAdmin, async (req, res) => {
   }
 });
 
-// Update player
+// Update player (admin only)
 router.put('/:id', ensureAdmin, async (req, res) => {
   try {
-    const { name, email, phone, handicap, notes } = req.body;
+    const { name, gender, email, points, isActive } = req.body;
     
-    await Player.findByIdAndUpdate(req.params.id, {
+    const updateData = {
       name,
+      gender,
       email,
-      phone,
-      handicap,
-      notes
-    });
+      points: parseInt(points) || 0,
+      isActive: isActive === 'on'
+    };
     
-    req.flash('success_msg', 'Player updated successfully');
+    await User.findByIdAndUpdate(req.params.id, updateData);
+
+    req.flash('success', 'Kylfingur uppfærður');
     res.redirect('/players');
   } catch (err) {
     console.error(err);
-    req.flash('error_msg', 'Error updating player');
-    res.redirect(`/players/edit/${req.params.id}`);
+    req.flash('error', 'Villa kom upp við að uppfæra kylfing');
+    res.redirect('/players');
   }
 });
 
-// Delete player
+// Delete player (admin only)
 router.delete('/:id', ensureAdmin, async (req, res) => {
   try {
-    await Player.findByIdAndDelete(req.params.id);
-    req.flash('success_msg', 'Player deleted successfully');
+    await User.findByIdAndDelete(req.params.id);
+    req.flash('success', 'Kylfingur eytt');
     res.redirect('/players');
   } catch (err) {
     console.error(err);
-    req.flash('error_msg', 'Error deleting player');
+    req.flash('error', 'Villa kom upp við að eyða kylfingi');
     res.redirect('/players');
   }
 });
 
-// Add points form
-router.get('/:id/points', ensureAdmin, async (req, res) => {
+// Admin update points route
+router.post('/:id/update-points', ensureAdmin, async (req, res) => {
   try {
-    const player = await Player.findById(req.params.id);
-    if (!player) {
-      req.flash('error_msg', 'Player not found');
-      return res.redirect('/manage-points');
-    }
-    
-    res.render('players/points', {
-      player,
-      title: `Add Points for ${player.name}`
-    });
-  } catch (err) {
-    console.error(err);
-    req.flash('error_msg', 'Error retrieving player');
-    res.redirect('/manage-points');
-  }
-});
+    const { points, notes } = req.body;
+    const pointsDelta = parseInt(points);
 
-// Add points handle
-router.post('/:id/points', ensureAdmin, async (req, res) => {
-  try {
-    const { points, reason } = req.body;
-    const pointsValue = parseInt(points);
-    
-    if (isNaN(pointsValue)) {
-      req.flash('error_msg', 'Points must be a number');
-      return res.redirect(`/players/${req.params.id}/points`);
-    }
-    
-    const player = await Player.findById(req.params.id);
-    if (!player) {
-      req.flash('error_msg', 'Player not found');
+    if (isNaN(pointsDelta)) {
+      req.flash('error', 'Stig verða að vera tala');
       return res.redirect('/manage-points');
     }
+
+    // Fetch user and update points
+    const user = await User.findById(req.params.id);
+    if (!user) {
+      req.flash('error', 'Kylfingur fannst ekki');
+      return res.redirect('/manage-points');
+    }
+
+    user.points += pointsDelta;
+    user.pointsLastUpdated = Date.now();
+    await user.save();
+
+    const message = pointsDelta > 0 
+      ? `Bætti við ${pointsDelta} stigum hjá ${user.name}` 
+      : `Dró frá ${Math.abs(pointsDelta)} stig hjá ${user.name}`;
     
-    // Add to points history
-    player.pointsHistory.push({
-      points: pointsValue,
-      reason: reason || `Points ${pointsValue > 0 ? 'added' : 'deducted'}`
-    });
+    if (notes) {
+      req.flash('success', `${message} - ${notes}`);
+    } else {
+      req.flash('success', message);
+    }
     
-    // Update total points
-    player.points += pointsValue;
-    
-    await player.save();
-    
-    req.flash('success_msg', `${Math.abs(pointsValue)} points ${pointsValue > 0 ? 'added to' : 'deducted from'} ${player.name}`);
     res.redirect('/manage-points');
   } catch (err) {
     console.error(err);
-    req.flash('error_msg', 'Error updating points');
-    res.redirect(`/players/${req.params.id}/points`);
-  }
-});
-
-// View player history
-router.get('/:id/history', ensureAuthenticated, async (req, res) => {
-  try {
-    const player = await Player.findById(req.params.id);
-    if (!player) {
-      req.flash('error_msg', 'Player not found');
-      return res.redirect('/players');
-    }
-    
-    res.render('players/history', {
-      player,
-      title: `${player.name}'s Points History`
-    });
-  } catch (err) {
-    console.error(err);
-    req.flash('error_msg', 'Error retrieving player history');
-    res.redirect('/players');
+    req.flash('error', 'Villa kom upp við að uppfæra stig');
+    res.redirect('/manage-points');
   }
 });
 

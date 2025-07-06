@@ -30,8 +30,6 @@
                 <tr>
                   <th>Nafn</th>
                   <th>Stig</th>
-                  <th>Forgjöf</th>
-                  <th>Tengiliðir</th>
                   <th>Aðgerðir</th>
                 </tr>
               </thead>
@@ -44,15 +42,6 @@
                         <%= player.points %>
                       </span>
                     </td>
-                    <td><%= player.handicap || '-' %></td>
-                    <td>
-                      <% if(player.email) { %>
-                        <small class="d-block"><i class="fas fa-envelope me-1"></i><%= player.email %></small>
-                      <% } %>
-                      <% if(player.phone) { %>
-                        <small class="d-block"><i class="fas fa-phone me-1"></i><%= player.phone %></small>
-                      <% } %>
-                    </td>
                     <td>
                       <div class="btn-group" role="group">
                         <a href="/players/edit/<%= player._id %>" class="btn btn-primary btn-sm">
@@ -60,9 +49,6 @@
                         </a>
                         <a href="/players/<%= player._id %>/points" class="btn btn-success btn-sm">
                           <i class="fas fa-plus-circle me-1"></i>Stig
-                        </a>
-                        <a href="/players/<%= player._id %>/history" class="btn btn-info btn-sm">
-                          <i class="fas fa-history me-1"></i>Saga
                         </a>
                         <form action="/players/<%= player._id %>?_method=DELETE" method="POST" class="d-inline">
                           <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Ertu viss um að þú viljir eyða þessum kylfingi?')">

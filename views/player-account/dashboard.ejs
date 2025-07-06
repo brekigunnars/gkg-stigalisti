@@ -1,0 +1,61 @@
+<div class="container mt-4">
+  <div class="row">
+    <div class="col-md-12 mb-4">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <h2 class="mb-3">Velkomin(n) <%= user.name %></h2>
+          <div class="row">
+            <div class="col-md-6">
+              <div class="card mb-3">
+                <div class="card-body">
+                  <h5 class="card-title">Upplýsingar</h5>
+                  <dl class="row mb-0">
+                    <dt class="col-sm-4">Nafn</dt>
+                    <dd class="col-sm-8"><%= user.name %></dd>
+                    
+                    <dt class="col-sm-4">Netfang</dt>
+                    <dd class="col-sm-8"><%= user.email %></dd>
+                    
+                    <dt class="col-sm-4">Kyn</dt>
+                    <dd class="col-sm-8"><%= user.gender === 'male' ? 'Karlkyn' : 'Kvenkyn' %></dd>
+                    
+                    <dt class="col-sm-4">Stig</dt>
+                    <dd class="col-sm-8">
+                      <span class="badge <%= user.points > 0 ? 'bg-success' : 'bg-secondary' %>">
+                        <%= user.points %>
+                      </span>
+                    </dd>
+                  </dl>
+                </div>
+              </div>
+            </div>
+            
+            <div class="col-md-6">
+              <div class="card">
+                <div class="card-body">
+                  <h5 class="card-title">Uppfæra stig</h5>
+                  <form action="/player-account/update-points" method="POST">
+                    <div class="mb-3">
+                      <label for="points" class="form-label">Stig (±)</label>
+                      <input type="number" class="form-control" id="points" name="points" 
+                             placeholder="t.d. +5 eða -3" required>
+                      <div class="form-text">Sláðu inn jákvæða tölu til að bæta við stigum eða neikvæða tölu til að draga frá</div>
+                    </div>
+                    <div class="mb-3">
+                      <label for="notes" class="form-label">Athugasemd (valfrjálst)</label>
+                      <input type="text" class="form-control" id="notes" name="notes" 
+                             placeholder="t.d. Birdie á 9. holunni">
+                    </div>
+                    <button type="submit" class="btn btn-primary">
+                      <i class="fas fa-plus-minus me-1"></i>Uppfæra stig
+                    </button>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div> 

@@ -39,9 +39,7 @@ mongoose.connect(db, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
   serverSelectionTimeoutMS: 5000,
-  socketTimeoutMS: 45000,
-  retryWrites: true,
-  retryReads: true,
+  socketTimeoutMS: 45000
 })
   .then(() => console.log('MongoDB Connected'))
   .catch(err => {
@@ -69,7 +67,8 @@ app.use(session({
   cookie: {
     secure: false, // Disabled for now to ensure login works
     maxAge: 24 * 60 * 60 * 1000 // 24 hours
-  }
+  },
+  name: 'gkg_session' // Adding a custom session name for security
 }));
 
 // Passport middleware
@@ -80,11 +79,19 @@ app.use(passport.session());
 app.use(flash());
 
 // Global variables
-app.use((req, res, next) => {
+app.use(async (req, res, next) => {
   res.locals.success_msg = req.flash('success_msg');
   res.locals.error_msg = req.flash('error_msg');
   res.locals.error = req.flash('error');
   res.locals.user = req.user || null;
+  
+  // Add player information directly from the user object
+  if (req.user) {
+    res.locals.player = req.user.role === 'player' ? req.user : null;
+  } else {
+    res.locals.player = null;
+  }
+  
   next();
 });
 
@@ -92,9 +99,19 @@ app.use((req, res, next) => {
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Routes
-app.use('/', require('./routes/index'));
-app.use('/users', require('./routes/users'));
-app.use('/players', require('./routes/players'));
+const indexRouter = require('./routes/index');
+const usersRouter = require('./routes/users');
+const playersRouter = require('./routes/players');
+const playerAccountRouter = require('./routes/player-account');
+
+app.use('/', indexRouter);
+app.use('/users', usersRouter);
+app.use('/players', playersRouter);
+app.use('/player-account', playerAccountRouter);
+
+// Load Models
+const User = require('./models/User');
+const Leaderboard = require('./models/Leaderboard');
 
 // 404 handler
 app.use((req, res) => {

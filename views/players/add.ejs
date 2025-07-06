@@ -12,7 +12,7 @@
 </div>
 
 <div class="row">
-  <div class="col-md-8 mx-auto">
+  <div class="col-md-6 mx-auto">
     <div class="card shadow-sm">
       <div class="card-header bg-light">
         <h3>Upplýsingar um kylfing</h3>
@@ -32,47 +32,29 @@
           </div>
           
           <div class="mb-3">
-            <label for="email" class="form-label">Netfang</label>
+            <label for="email" class="form-label">Netfang *</label>
             <input 
               type="email" 
               class="form-control" 
               id="email" 
               name="email"
               value="<%= typeof email != 'undefined' ? email : '' %>"
+              required
             >
           </div>
-          
+
           <div class="mb-3">
-            <label for="phone" class="form-label">Símanúmer</label>
-            <input 
-              type="text" 
-              class="form-control" 
-              id="phone" 
-              name="phone"
-              value="<%= typeof phone != 'undefined' ? phone : '' %>"
+            <label for="gender" class="form-label">Kyn *</label>
+            <select 
+              class="form-select" 
+              id="gender" 
+              name="gender"
+              required
             >
-          </div>
-          
-          <div class="mb-3">
-            <label for="handicap" class="form-label">Forgjöf</label>
-            <input 
-              type="number" 
-              class="form-control" 
-              id="handicap" 
-              name="handicap"
-              step="0.1"
-              value="<%= typeof handicap != 'undefined' ? handicap : '' %>"
-            >
-          </div>
-          
-          <div class="mb-3">
-            <label for="notes" class="form-label">Athugasemdir</label>
-            <textarea 
-              class="form-control" 
-              id="notes" 
-              name="notes" 
-              rows="3"
-            ><%= typeof notes != 'undefined' ? notes : '' %></textarea>
+              <option value="">Veldu kyn</option>
+              <option value="male" <%= typeof gender != 'undefined' && gender === 'male' ? 'selected' : '' %>>Karlkyn</option>
+              <option value="female" <%= typeof gender != 'undefined' && gender === 'female' ? 'selected' : '' %>>Kvenkyn</option>
+            </select>
           </div>
           
           <div class="mb-3">

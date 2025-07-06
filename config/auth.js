@@ -7,7 +7,7 @@ module.exports = {
     res.redirect('/users/login');
   },
   ensureAdmin: function(req, res, next) {
-    if (req.isAuthenticated() && req.user && req.user.isAdmin) {
+    if (req.isAuthenticated() && req.user && req.user.role === 'admin') {
       return next();
     }
     req.flash('error_msg', 'Þú þarft að vera stjórnandi til að fá aðgang');

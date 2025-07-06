@@ -11,6 +11,11 @@
         <li class="nav-item">
           <a class="nav-link" href="/">Stigatafla</a>
         </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/stigareglur">
+            <i class="fas fa-list-alt me-1"></i>Stigareglur
+          </a>
+        </li>
         <% if (typeof user !== 'undefined' && user && user.isAdmin) { %>
           <li class="nav-item">
             <a class="nav-link" href="/dashboard">Stjórnborð</a>
@@ -21,6 +26,12 @@
           <li class="nav-item">
             <a class="nav-link" href="/manage-points">Stiga Stjórnun</a>
           </li>
+        <% } else if (typeof user !== 'undefined' && user && user.role === 'player') { %>
+          <li class="nav-item">
+            <a class="nav-link" href="/player-account/dashboard">
+              <i class="fas fa-plus-minus me-1"></i>Stjórna stigum
+            </a>
+          </li>
         <% } %>
       </ul>
       <ul class="navbar-nav ms-auto">
@@ -30,10 +41,21 @@
               <i class="fas fa-user me-1"></i><%= user.name %>
             </a>
             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+              <% if (user.role === 'player') { %>
+                <li><a class="dropdown-item" href="/player-account/dashboard">
+                  <i class="fas fa-user me-1"></i>Mín síða
+                </a></li>
+                <li><hr class="dropdown-divider"></li>
+              <% } %>
               <li><a class="dropdown-item" href="/users/logout">Útskrá</a></li>
             </ul>
           </li>
         <% } else { %>
+          <li class="nav-item">
+            <a class="nav-link" href="/users/register">
+              <i class="fas fa-user-plus me-1"></i>Nýskráning
+            </a>
+          </li>
           <li class="nav-item">
             <a class="nav-link" href="/users/login">Innskráning</a>
           </li>
