@@ -191,6 +191,7 @@
 const loadedPlayers = new Set();
 
 async function loadPointEntries(playerId) {
+  alert('Function called for player: ' + playerId); // TEST - remove this later
   console.log('Loading point entries for player:', playerId);
   
   const contentDiv = document.getElementById(`pointEntriesContent-${playerId}`);
