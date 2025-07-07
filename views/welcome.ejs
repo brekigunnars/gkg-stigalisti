@@ -199,8 +199,11 @@ async function loadPointEntries(playerId) {
     return;
   }
   
+  console.log('Content div found:', contentDiv);
+  
   // Show loading message
   contentDiv.innerHTML = '<div class="text-center"><i class="fas fa-spinner fa-spin"></i> Hleður stigayfirlit...</div>';
+  console.log('Loading message set');
   
   try {
     // Add timeout to prevent endless loading
@@ -223,13 +226,17 @@ async function loadPointEntries(playerId) {
     console.log('API response data:', data);
     
     if (!data.pointEntries || data.pointEntries.length === 0) {
+      console.log('No point entries found, setting no entries message');
       contentDiv.innerHTML = '<div class="text-muted text-center">Engar stigafærslur fundust</div>';
       return;
     }
     
+    console.log('Building HTML for', data.pointEntries.length, 'entries');
+    
     // Build the entries HTML
     let entriesHtml = '<div class="list-group">';
-    data.pointEntries.forEach(entry => {
+    data.pointEntries.forEach((entry, index) => {
+      console.log(`Processing entry ${index + 1}:`, entry);
       const date = new Date(entry.createdAt).toLocaleDateString('is-IS');
       const time = new Date(entry.createdAt).toLocaleTimeString('is-IS', { 
         hour: '2-digit', 
@@ -258,7 +265,12 @@ async function loadPointEntries(playerId) {
     });
     entriesHtml += '</div>';
     
+    console.log('Generated HTML:', entriesHtml.substring(0, 200) + '...');
+    console.log('Setting innerHTML...');
+    
     contentDiv.innerHTML = entriesHtml;
+    
+    console.log('Content updated successfully. Current innerHTML length:', contentDiv.innerHTML.length);
     
   } catch (err) {
     console.error('Error loading point entries:', err);
@@ -279,6 +291,8 @@ async function loadPointEntries(playerId) {
         </button>
       </div>
     `;
+    
+    console.log('Error message set in contentDiv');
   }
 }
 </script> 
