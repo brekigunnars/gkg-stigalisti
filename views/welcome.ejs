@@ -191,7 +191,6 @@
 const loadedPlayers = new Set();
 
 async function loadPointEntries(playerId) {
-  alert('Function called for player: ' + playerId); // TEST - remove this later
   console.log('Loading point entries for player:', playerId);
   
   const contentDiv = document.getElementById(`pointEntriesContent-${playerId}`);
@@ -200,44 +199,34 @@ async function loadPointEntries(playerId) {
     return;
   }
   
-  console.log('Content div found:', contentDiv);
-  
   // Show loading message
   contentDiv.innerHTML = '<div class="text-center"><i class="fas fa-spinner fa-spin"></i> Hleður stigayfirlit...</div>';
-  console.log('Loading message set');
   
   try {
     // Add timeout to prevent endless loading
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
     
-    console.log('Making API call to:', `/api/player/${playerId}/point-entries`);
     const response = await fetch(`/api/player/${playerId}/point-entries`, {
       signal: controller.signal
     });
     
     clearTimeout(timeoutId);
-    console.log('API response status:', response.status);
     
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
     
     const data = await response.json();
-    console.log('API response data:', data);
     
     if (!data.pointEntries || data.pointEntries.length === 0) {
-      console.log('No point entries found, setting no entries message');
       contentDiv.innerHTML = '<div class="text-muted text-center">Engar stigafærslur fundust</div>';
       return;
     }
     
-    console.log('Building HTML for', data.pointEntries.length, 'entries');
-    
     // Build the entries HTML
     let entriesHtml = '<div class="list-group">';
     data.pointEntries.forEach((entry, index) => {
-      console.log(`Processing entry ${index + 1}:`, entry);
       const date = new Date(entry.createdAt).toLocaleDateString('is-IS');
       const time = new Date(entry.createdAt).toLocaleTimeString('is-IS', { 
         hour: '2-digit', 
@@ -266,33 +255,8 @@ async function loadPointEntries(playerId) {
     });
     entriesHtml += '</div>';
     
-    console.log('Generated HTML:', entriesHtml.substring(0, 200) + '...');
-    console.log('Setting innerHTML...');
-    
-    // Force the content update multiple times to override Bootstrap
+    // Update content
     contentDiv.innerHTML = entriesHtml;
-    
-    console.log('Content updated successfully. Current innerHTML length:', contentDiv.innerHTML.length);
-    
-    // Force update again after a delay to ensure it sticks
-    setTimeout(() => {
-      console.log('Double-checking content after 100ms. Current innerHTML length:', contentDiv.innerHTML.length);
-      if (contentDiv.innerHTML.includes('Hleður stigayfirlit') || contentDiv.innerHTML.includes('spinner')) {
-        console.error('Content was overridden! Forcing update again...');
-        contentDiv.innerHTML = entriesHtml;
-        console.log('Content forced again. New length:', contentDiv.innerHTML.length);
-      }
-    }, 100);
-    
-    // Triple check after longer delay
-    setTimeout(() => {
-      console.log('Triple-checking content after 500ms. Current innerHTML length:', contentDiv.innerHTML.length);
-      if (contentDiv.innerHTML.includes('Hleður stigayfirlit') || contentDiv.innerHTML.includes('spinner')) {
-        console.error('Content was overridden again! Final force update...');
-        contentDiv.innerHTML = entriesHtml;
-        console.log('Final content update. New length:', contentDiv.innerHTML.length);
-      }
-    }, 500);
     
   } catch (err) {
     console.error('Error loading point entries:', err);
@@ -308,13 +272,20 @@ async function loadPointEntries(playerId) {
       <div class="alert alert-warning text-center">
         <i class="fas fa-exclamation-triangle"></i> ${errorMessage}
         <br>
-        <button class="btn btn-sm btn-outline-primary mt-2" onclick="loadPointEntries('${playerId}')">
+        <button class="btn btn-sm btn-outline-primary mt-2 retry-btn" data-player-id="${playerId}">
           <i class="fas fa-redo"></i> Reyna aftur
         </button>
       </div>
     `;
     
-    console.log('Error message set in contentDiv');
+    // Add event listener for retry button
+    const retryBtn = contentDiv.querySelector('.retry-btn');
+    if (retryBtn) {
+      retryBtn.addEventListener('click', function() {
+        const playerId = this.getAttribute('data-player-id');
+        loadPointEntries(playerId);
+      });
+    }
   }
 }
 
