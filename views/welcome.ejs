@@ -63,9 +63,9 @@
                           </small>
                         </td>
                         <td class="text-center">
-                          <button class="btn btn-sm btn-outline-primary" type="button" data-bs-toggle="collapse" 
+                          <button class="btn btn-sm btn-outline-primary point-entries-btn" type="button" data-bs-toggle="collapse" 
                                   data-bs-target="#pointEntries-<%= player._id %>" aria-expanded="false" 
-                                  aria-controls="pointEntries-<%= player._id %>" onclick="setTimeout(() => loadPointEntries('<%= player._id %>'), 350)">
+                                  aria-controls="pointEntries-<%= player._id %>" data-player-id="<%= player._id %>">
                             <i class="fas fa-list-alt me-1"></i>
                             <span id="entryCount-<%= player._id %>">Skoða</span>
                           </button>
@@ -136,9 +136,9 @@
                           </small>
                         </td>
                         <td class="text-center">
-                          <button class="btn btn-sm btn-outline-primary" type="button" data-bs-toggle="collapse" 
+                          <button class="btn btn-sm btn-outline-primary point-entries-btn" type="button" data-bs-toggle="collapse" 
                                   data-bs-target="#pointEntries-<%= player._id %>" aria-expanded="false" 
-                                  aria-controls="pointEntries-<%= player._id %>" onclick="setTimeout(() => loadPointEntries('<%= player._id %>'), 350)">
+                                  aria-controls="pointEntries-<%= player._id %>" data-player-id="<%= player._id %>">
                             <i class="fas fa-list-alt me-1"></i>
                             <span id="entryCount-<%= player._id %>">Skoða</span>
                           </button>
@@ -317,4 +317,15 @@ async function loadPointEntries(playerId) {
     console.log('Error message set in contentDiv');
   }
 }
+
+// Add event listeners for all point entries buttons
+document.addEventListener('DOMContentLoaded', function() {
+  const buttons = document.querySelectorAll('.point-entries-btn');
+  buttons.forEach(button => {
+    button.addEventListener('click', function() {
+      const playerId = this.getAttribute('data-player-id');
+      setTimeout(() => loadPointEntries(playerId), 350);
+    });
+  });
+});
 </script> 
