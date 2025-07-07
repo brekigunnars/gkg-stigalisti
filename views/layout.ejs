@@ -33,6 +33,28 @@
       transform: translateY(-5px);
       box-shadow: 0 4px 8px rgba(0,0,0,0.2);
     }
+    .player-link {
+      position: relative;
+      transition: all 0.3s ease;
+      display: inline-block;
+    }
+    .player-link:hover {
+      color: #007bff !important;
+      text-decoration: none !important;
+    }
+    .player-link:hover .fas {
+      color: #007bff !important;
+      transform: translateX(3px);
+    }
+    .player-link .fas {
+      transition: all 0.3s ease;
+    }
+    .table-hover tbody tr:hover {
+      background-color: rgba(0, 123, 255, 0.1);
+    }
+    .table-hover tbody tr:hover .player-link {
+      color: #007bff !important;
+    }
   </style>
 </head>
 <body>

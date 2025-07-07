@@ -38,6 +38,7 @@
                       <th>Kylfingur</th>
                       <th class="text-end">Stig</th>
                       <th class="text-end">Síðast uppfært</th>
+                      <th class="text-center">Stigayfirlit</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -46,7 +47,11 @@
                         <td>
                           <span class="badge bg-secondary">#<%= index + 1 %></span>
                         </td>
-                        <td><%= player.name %></td>
+                        <td>
+                          <span class="text-dark fw-bold">
+                            <%= player.name %>
+                          </span>
+                        </td>
                         <td class="text-end">
                           <span class="badge <%= player.points > 0 ? 'bg-success' : 'bg-secondary' %> point-badge">
                             <%= player.points %>
@@ -56,6 +61,30 @@
                           <small class="text-muted">
                             <%= player.pointsLastUpdated ? new Date(player.pointsLastUpdated).toLocaleDateString('is-IS') : '-' %>
                           </small>
+                        </td>
+                        <td class="text-center">
+                          <button class="btn btn-sm btn-outline-primary" type="button" data-bs-toggle="collapse" 
+                                  data-bs-target="#pointEntries-<%= player._id %>" aria-expanded="false" 
+                                  aria-controls="pointEntries-<%= player._id %>" onclick="loadPointEntries('<%= player._id %>')">
+                            <i class="fas fa-list-alt me-1"></i>
+                            <span id="entryCount-<%= player._id %>">Skoða</span>
+                          </button>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td colspan="5" class="p-0">
+                          <div class="collapse" id="pointEntries-<%= player._id %>">
+                            <div class="card card-body bg-light m-2">
+                              <div id="pointEntriesContent-<%= player._id %>">
+                                <div class="text-center">
+                                  <div class="spinner-border spinner-border-sm" role="status">
+                                    <span class="visually-hidden">Hleð...</span>
+                                  </div>
+                                  <p class="mt-2 mb-0">Hleður stigayfirlit...</p>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
                         </td>
                       </tr>
                     <% }); %>
@@ -82,6 +111,7 @@
                       <th>Kylfingur</th>
                       <th class="text-end">Stig</th>
                       <th class="text-end">Síðast uppfært</th>
+                      <th class="text-center">Stigayfirlit</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -90,7 +120,11 @@
                         <td>
                           <span class="badge bg-secondary">#<%= index + 1 %></span>
                         </td>
-                        <td><%= player.name %></td>
+                        <td>
+                          <span class="text-dark fw-bold">
+                            <%= player.name %>
+                          </span>
+                        </td>
                         <td class="text-end">
                           <span class="badge <%= player.points > 0 ? 'bg-success' : 'bg-secondary' %> point-badge">
                             <%= player.points %>
@@ -100,6 +134,30 @@
                           <small class="text-muted">
                             <%= player.pointsLastUpdated ? new Date(player.pointsLastUpdated).toLocaleDateString('is-IS') : '-' %>
                           </small>
+                        </td>
+                        <td class="text-center">
+                          <button class="btn btn-sm btn-outline-primary" type="button" data-bs-toggle="collapse" 
+                                  data-bs-target="#pointEntries-<%= player._id %>" aria-expanded="false" 
+                                  aria-controls="pointEntries-<%= player._id %>" onclick="loadPointEntries('<%= player._id %>')">
+                            <i class="fas fa-list-alt me-1"></i>
+                            <span id="entryCount-<%= player._id %>">Skoða</span>
+                          </button>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td colspan="5" class="p-0">
+                          <div class="collapse" id="pointEntries-<%= player._id %>">
+                            <div class="card card-body bg-light m-2">
+                              <div id="pointEntriesContent-<%= player._id %>">
+                                <div class="text-center">
+                                  <div class="spinner-border spinner-border-sm" role="status">
+                                    <span class="visually-hidden">Hleð...</span>
+                                  </div>
+                                  <p class="mt-2 mb-0">Hleður stigayfirlit...</p>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
                         </td>
                       </tr>
                     <% }); %>
@@ -127,4 +185,84 @@
       </div>
     </div>
   <% } %>
-</div> 
+</div>
+
+<script>
+const loadedPlayers = new Set();
+
+async function loadPointEntries(playerId) {
+  // Only load once per player
+  if (loadedPlayers.has(playerId)) {
+    return;
+  }
+  
+  try {
+    const response = await fetch(`/api/player/${playerId}/point-entries`);
+    const data = await response.json();
+    
+    const contentDiv = document.getElementById(`pointEntriesContent-${playerId}`);
+    const countSpan = document.getElementById(`entryCount-${playerId}`);
+    
+    if (data.pointEntries && data.pointEntries.length > 0) {
+      let entriesHtml = '<div class="row">';
+      
+      data.pointEntries.forEach(entry => {
+        const pointsClass = entry.points >= 0 ? 'text-success' : 'text-danger';
+        const pointsIcon = entry.points >= 0 ? 'plus' : 'minus';
+        const entryDate = new Date(entry.createdAt).toLocaleDateString('is-IS');
+        const entryTime = new Date(entry.createdAt).toLocaleTimeString('is-IS', { hour: '2-digit', minute: '2-digit' });
+        
+        entriesHtml += `
+          <div class="col-md-6 mb-2">
+            <div class="card border-0 bg-white">
+              <div class="card-body p-2">
+                <div class="d-flex justify-content-between align-items-start mb-1">
+                  <span class="${pointsClass} fw-bold">
+                    <i class="fas fa-${pointsIcon}-circle me-1"></i>
+                    ${entry.points >= 0 ? '+' : ''}${entry.points} stig
+                  </span>
+                  <small class="text-muted">
+                    <i class="fas fa-calendar-alt me-1"></i>${entryDate}
+                  </small>
+                </div>
+                <p class="mb-1 small">${entry.comment}</p>
+                <div class="d-flex justify-content-between align-items-center">
+                  <small class="text-muted">
+                    <i class="fas fa-user me-1"></i>${entry.addedBy ? entry.addedBy.name : 'Óþekkt'}
+                  </small>
+                  <small class="text-muted">
+                    <i class="fas fa-clock me-1"></i>${entryTime}
+                  </small>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+      });
+      
+      entriesHtml += '</div>';
+      contentDiv.innerHTML = entriesHtml;
+      countSpan.textContent = `${data.pointEntries.length}`;
+    } else {
+      contentDiv.innerHTML = `
+        <div class="text-center py-3">
+          <i class="fas fa-info-circle fa-2x text-muted mb-2"></i>
+          <p class="text-muted mb-0">Engar stigafærslur skráðar</p>
+        </div>
+      `;
+      countSpan.textContent = '0';
+    }
+    
+    loadedPlayers.add(playerId);
+  } catch (error) {
+    console.error('Error loading point entries:', error);
+    const contentDiv = document.getElementById(`pointEntriesContent-${playerId}`);
+    contentDiv.innerHTML = `
+      <div class="text-center py-3">
+        <i class="fas fa-exclamation-triangle fa-2x text-warning mb-2"></i>
+        <p class="text-muted mb-0">Villa kom upp við að hlaða stigayfirlit</p>
+      </div>
+    `;
+  }
+}
+</script> 

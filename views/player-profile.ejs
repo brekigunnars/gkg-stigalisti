@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="is">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <link rel="stylesheet" href="https://bootswatch.com/5/flatly/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <!-- Favicon -->
+  <link rel="icon" href="/images/GKG-logo-2015-Mobile.png" type="image/png">
+  <link rel="shortcut icon" href="/images/GKG-logo-2015-Mobile.png" type="image/png">
+  <title><%= title %></title>
+  <style>
+    body {
+      padding-top: 70px;
+      padding-bottom: 30px;
+    }
+    .player-header {
+      background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+      color: white;
+      padding: 2rem 0;
+      margin-bottom: 2rem;
+    }
+    .point-entry-card {
+      transition: transform 0.2s, box-shadow 0.2s;
+      border-left: 4px solid #3498db;
+    }
+    .point-entry-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    .points-positive {
+      color: #27ae60;
+      font-weight: bold;
+    }
+    .points-negative {
+      color: #e74c3c;
+      font-weight: bold;
+    }
+    .total-points {
+      font-size: 2.5rem;
+      font-weight: bold;
+      color: #f39c12;
+    }
+    .back-button {
+      margin-bottom: 1rem;
+    }
+    .entry-date {
+      font-size: 0.9rem;
+      color: #7f8c8d;
+    }
+    .entry-admin {
+      font-size: 0.85rem;
+      color: #95a5a6;
+    }
+  </style>
+</head>
+<body>
+  <%- include('partials/navbar') %>
+  
+  <div class="container">
+    <!-- Back Button -->
+    <div class="back-button">
+      <a href="/" class="btn btn-outline-secondary">
+        <i class="fas fa-arrow-left me-2"></i>Til baka á stigalista
+      </a>
+    </div>
+
+    <!-- Player Header -->
+    <div class="player-header text-center rounded">
+      <div class="container">
+        <h1 class="mb-3">
+          <i class="fas fa-user-circle me-2"></i><%= player.name %>
+        </h1>
+        <div class="row justify-content-center">
+          <div class="col-md-3">
+            <div class="mb-2">
+              <i class="fas fa-venus-mars me-2"></i>
+              <strong><%= player.gender === 'male' ? 'Karl' : 'Kona' %></strong>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="mb-2">
+              <i class="fas fa-trophy me-2"></i>
+              <span class="total-points"><%= player.points %></span> stig
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="mb-2">
+              <i class="fas fa-clock me-2"></i>
+              <% if (player.pointsLastUpdated) { %>
+                Síðast uppfært: <%= new Date(player.pointsLastUpdated).toLocaleDateString('is-IS') %>
+              <% } else { %>
+                Aldrei uppfært
+              <% } %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Point Entries -->
+    <div class="row">
+      <div class="col-12">
+        <div class="card shadow-sm">
+          <div class="card-header">
+            <h3 class="mb-0">
+              <i class="fas fa-list-alt me-2"></i>Stigayfirlit
+              <span class="badge bg-primary ms-2"><%= pointEntries.length %></span>
+            </h3>
+          </div>
+          <div class="card-body">
+            <% if (pointEntries.length === 0) { %>
+              <div class="text-center py-5">
+                <i class="fas fa-info-circle fa-3x text-muted mb-3"></i>
+                <h5 class="text-muted">Engin stigafærsla skráð</h5>
+                <p class="text-muted">Þessi kylfingur á ekki skráðar stigafærslur ennþá.</p>
+              </div>
+            <% } else { %>
+              <div class="row">
+                <% pointEntries.forEach((entry, index) => { %>
+                  <div class="col-md-6 mb-3">
+                    <div class="card point-entry-card h-100">
+                      <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                          <span class="<%= entry.points >= 0 ? 'points-positive' : 'points-negative' %>">
+                            <i class="fas fa-<%= entry.points >= 0 ? 'plus' : 'minus' %>-circle me-1"></i>
+                            <%= entry.points >= 0 ? '+' : '' %><%= entry.points %> stig
+                          </span>
+                          <small class="entry-date">
+                            <i class="fas fa-calendar-alt me-1"></i>
+                            <%= new Date(entry.createdAt).toLocaleDateString('is-IS') %>
+                          </small>
+                        </div>
+                        
+                        <p class="mb-2"><%= entry.comment %></p>
+                        
+                        <div class="d-flex justify-content-between align-items-center">
+                          <small class="entry-admin">
+                            <i class="fas fa-user-shield me-1"></i>
+                            Bætt við af: <%= entry.addedBy ? entry.addedBy.name : 'Óþekkt' %>
+                          </small>
+                          <small class="entry-date">
+                            <i class="fas fa-clock me-1"></i>
+                            <%= new Date(entry.createdAt).toLocaleTimeString('is-IS', { hour: '2-digit', minute: '2-digit' }) %>
+                          </small>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                <% }) %>
+              </div>
+            <% } %>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Summary Statistics -->
+    <% if (pointEntries.length > 0) { %>
+      <div class="row mt-4">
+        <div class="col-md-4">
+          <div class="card text-center">
+            <div class="card-body">
+              <h5 class="card-title text-success">
+                <i class="fas fa-arrow-up me-2"></i>Jákvæðar færslur
+              </h5>
+              <h3 class="text-success">
+                <%= pointEntries.filter(entry => entry.points > 0).length %>
+              </h3>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="card text-center">
+            <div class="card-body">
+              <h5 class="card-title text-danger">
+                <i class="fas fa-arrow-down me-2"></i>Neikvæðar færslur
+              </h5>
+              <h3 class="text-danger">
+                <%= pointEntries.filter(entry => entry.points < 0).length %>
+              </h3>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="card text-center">
+            <div class="card-body">
+              <h5 class="card-title text-primary">
+                <i class="fas fa-calculator me-2"></i>Meðaltal
+              </h5>
+              <h3 class="text-primary">
+                <%= pointEntries.length > 0 ? Math.round(pointEntries.reduce((sum, entry) => sum + entry.points, 0) / pointEntries.length) : 0 %>
+              </h3>
+            </div>
+          </div>
+        </div>
+      </div>
+    <% } %>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html> 

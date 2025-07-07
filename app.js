@@ -112,6 +112,7 @@ app.use('/player-account', playerAccountRouter);
 // Load Models
 const User = require('./models/User');
 const Leaderboard = require('./models/Leaderboard');
+const PointEntry = require('./models/PointEntry');
 
 // 404 handler
 app.use((req, res) => {
