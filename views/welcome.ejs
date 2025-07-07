@@ -191,76 +191,92 @@
 const loadedPlayers = new Set();
 
 async function loadPointEntries(playerId) {
-  // Only load once per player
-  if (loadedPlayers.has(playerId)) {
+  console.log('Loading point entries for player:', playerId);
+  
+  const contentDiv = document.getElementById(`pointEntriesContent-${playerId}`);
+  if (!contentDiv) {
+    console.error('Content div not found for player:', playerId);
     return;
   }
   
+  // Show loading message
+  contentDiv.innerHTML = '<div class="text-center"><i class="fas fa-spinner fa-spin"></i> Hleður stigayfirlit...</div>';
+  
   try {
-    const response = await fetch(`/api/player/${playerId}/point-entries`);
-    const data = await response.json();
+    // Add timeout to prevent endless loading
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
     
-    const contentDiv = document.getElementById(`pointEntriesContent-${playerId}`);
-    const countSpan = document.getElementById(`entryCount-${playerId}`);
+    console.log('Making API call to:', `/api/player/${playerId}/point-entries`);
+    const response = await fetch(`/api/player/${playerId}/point-entries`, {
+      signal: controller.signal
+    });
     
-    if (data.pointEntries && data.pointEntries.length > 0) {
-      let entriesHtml = '<div class="row">';
-      
-      data.pointEntries.forEach(entry => {
-        const pointsClass = entry.points >= 0 ? 'text-success' : 'text-danger';
-        const pointsIcon = entry.points >= 0 ? 'plus' : 'minus';
-        const entryDate = new Date(entry.createdAt).toLocaleDateString('is-IS');
-        const entryTime = new Date(entry.createdAt).toLocaleTimeString('is-IS', { hour: '2-digit', minute: '2-digit' });
-        
-        entriesHtml += `
-          <div class="col-md-6 mb-2">
-            <div class="card border-0 bg-white">
-              <div class="card-body p-2">
-                <div class="d-flex justify-content-between align-items-start mb-1">
-                  <span class="${pointsClass} fw-bold">
-                    <i class="fas fa-${pointsIcon}-circle me-1"></i>
-                    ${entry.points >= 0 ? '+' : ''}${entry.points} stig
-                  </span>
-                  <small class="text-muted">
-                    <i class="fas fa-calendar-alt me-1"></i>${entryDate}
-                  </small>
-                </div>
-                <p class="mb-1 small">${entry.comment}</p>
-                <div class="d-flex justify-content-between align-items-center">
-                  <small class="text-muted">
-                    <i class="fas fa-user me-1"></i>${entry.addedBy ? entry.addedBy.name : 'Óþekkt'}
-                  </small>
-                  <small class="text-muted">
-                    <i class="fas fa-clock me-1"></i>${entryTime}
-                  </small>
-                </div>
-              </div>
-            </div>
-          </div>
-        `;
-      });
-      
-      entriesHtml += '</div>';
-      contentDiv.innerHTML = entriesHtml;
-      countSpan.textContent = `${data.pointEntries.length}`;
-    } else {
-      contentDiv.innerHTML = `
-        <div class="text-center py-3">
-          <i class="fas fa-info-circle fa-2x text-muted mb-2"></i>
-          <p class="text-muted mb-0">Engar stigafærslur skráðar</p>
-        </div>
-      `;
-      countSpan.textContent = '0';
+    clearTimeout(timeoutId);
+    console.log('API response status:', response.status);
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
     
-    loadedPlayers.add(playerId);
-  } catch (error) {
-    console.error('Error loading point entries:', error);
-    const contentDiv = document.getElementById(`pointEntriesContent-${playerId}`);
+    const data = await response.json();
+    console.log('API response data:', data);
+    
+    if (!data.pointEntries || data.pointEntries.length === 0) {
+      contentDiv.innerHTML = '<div class="text-muted text-center">Engar stigafærslur fundust</div>';
+      return;
+    }
+    
+    // Build the entries HTML
+    let entriesHtml = '<div class="list-group">';
+    data.pointEntries.forEach(entry => {
+      const date = new Date(entry.createdAt).toLocaleDateString('is-IS');
+      const time = new Date(entry.createdAt).toLocaleTimeString('is-IS', { 
+        hour: '2-digit', 
+        minute: '2-digit' 
+      });
+      const pointsClass = entry.points > 0 ? 'text-success' : 'text-danger';
+      const pointsSign = entry.points > 0 ? '+' : '';
+      
+      entriesHtml += `
+        <div class="list-group-item">
+          <div class="d-flex justify-content-between align-items-start">
+            <div>
+              <h6 class="mb-1">${entry.comment}</h6>
+              <small class="text-muted">Bætt við af: ${entry.addedBy ? entry.addedBy.name : 'Óþekkt'}</small>
+            </div>
+            <div class="text-end">
+              <span class="badge ${pointsClass === 'text-success' ? 'bg-success' : 'bg-danger'} rounded-pill">
+                ${pointsSign}${entry.points}
+              </span>
+              <br>
+              <small class="text-muted">${date} ${time}</small>
+            </div>
+          </div>
+        </div>
+      `;
+    });
+    entriesHtml += '</div>';
+    
+    contentDiv.innerHTML = entriesHtml;
+    
+  } catch (err) {
+    console.error('Error loading point entries:', err);
+    
+    let errorMessage = 'Villa kom upp við að sækja stigayfirlit';
+    if (err.name === 'AbortError') {
+      errorMessage = 'Tímamörk runnu út við að sækja stigayfirlit';
+    } else if (err.message.includes('Failed to fetch')) {
+      errorMessage = 'Ekki tókst að tengjast netþjóni';
+    }
+    
     contentDiv.innerHTML = `
-      <div class="text-center py-3">
-        <i class="fas fa-exclamation-triangle fa-2x text-warning mb-2"></i>
-        <p class="text-muted mb-0">Villa kom upp við að hlaða stigayfirlit</p>
+      <div class="alert alert-warning text-center">
+        <i class="fas fa-exclamation-triangle"></i> ${errorMessage}
+        <br>
+        <button class="btn btn-sm btn-outline-primary mt-2" onclick="loadPointEntries('${playerId}')">
+          <i class="fas fa-redo"></i> Reyna aftur
+        </button>
       </div>
     `;
   }

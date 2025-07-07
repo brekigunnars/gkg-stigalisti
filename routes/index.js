@@ -109,25 +109,77 @@ router.get('/player/:id', async (req, res) => {
 router.get('/api/player/:id/point-entries', async (req, res) => {
   try {
     const playerId = req.params.id;
+    console.log('API: Fetching point entries for player ID:', playerId);
     
     // Validate player exists
     const player = await User.findById(playerId).select('name');
     if (!player) {
+      console.log('API: Player not found for ID:', playerId);
       return res.status(404).json({ error: 'Kylfingur fannst ekki' });
     }
+    
+    console.log('API: Found player:', player.name);
     
     // Get all point entries for this player, sorted by most recent first
     const pointEntries = await PointEntry.find({ userId: playerId })
       .populate('addedBy', 'name')
       .sort({ createdAt: -1 });
     
+    console.log('API: Found', pointEntries.length, 'point entries for player:', player.name);
+    
     res.json({
       player: player.name,
       pointEntries
     });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Villa kom upp við að sækja stigayfirlit' });
+    console.error('API Error loading point entries:', err);
+    res.status(500).json({ 
+      error: 'Villa kom upp við að sækja stigayfirlit',
+      details: process.env.NODE_ENV === 'production' ? 'Server error' : err.message 
+    });
+  }
+});
+
+// Debug API endpoint for production debugging
+router.get('/api/debug/point-entries/:id', async (req, res) => {
+  try {
+    const playerId = req.params.id;
+    
+    // Check if PointEntry model is available
+    const modelCheck = {
+      PointEntryModelExists: !!PointEntry,
+      UserModelExists: !!User,
+      mongooseConnection: mongoose.connection.readyState === 1 ? 'Connected' : 'Disconnected'
+    };
+    
+    // Try to find the player
+    const player = await User.findById(playerId).select('name');
+    if (!player) {
+      return res.json({
+        ...modelCheck,
+        error: 'Player not found',
+        playerId
+      });
+    }
+    
+    // Try to find point entries
+    const pointEntries = await PointEntry.find({ userId: playerId })
+      .populate('addedBy', 'name')
+      .sort({ createdAt: -1 });
+    
+    res.json({
+      ...modelCheck,
+      player: player.name,
+      pointEntriesCount: pointEntries.length,
+      pointEntries: pointEntries.slice(0, 3) // Only show first 3 for debugging
+    });
+  } catch (err) {
+    console.error('Debug API Error:', err);
+    res.status(500).json({ 
+      error: 'Debug API error',
+      message: err.message,
+      stack: process.env.NODE_ENV === 'production' ? 'Hidden in production' : err.stack
+    });
   }
 });
 
