@@ -65,7 +65,7 @@
                         <td class="text-center">
                           <button class="btn btn-sm btn-outline-primary" type="button" data-bs-toggle="collapse" 
                                   data-bs-target="#pointEntries-<%= player._id %>" aria-expanded="false" 
-                                  aria-controls="pointEntries-<%= player._id %>" onclick="loadPointEntries('<%= player._id %>')">
+                                  aria-controls="pointEntries-<%= player._id %>" onclick="setTimeout(() => loadPointEntries('<%= player._id %>'), 350)">
                             <i class="fas fa-list-alt me-1"></i>
                             <span id="entryCount-<%= player._id %>">Skoða</span>
                           </button>
@@ -138,7 +138,7 @@
                         <td class="text-center">
                           <button class="btn btn-sm btn-outline-primary" type="button" data-bs-toggle="collapse" 
                                   data-bs-target="#pointEntries-<%= player._id %>" aria-expanded="false" 
-                                  aria-controls="pointEntries-<%= player._id %>" onclick="loadPointEntries('<%= player._id %>')">
+                                  aria-controls="pointEntries-<%= player._id %>" onclick="setTimeout(() => loadPointEntries('<%= player._id %>'), 350)">
                             <i class="fas fa-list-alt me-1"></i>
                             <span id="entryCount-<%= player._id %>">Skoða</span>
                           </button>
@@ -200,6 +200,14 @@ async function loadPointEntries(playerId) {
   }
   
   console.log('Content div found:', contentDiv);
+  
+  // Check if the collapse is visible
+  const collapseDiv = document.getElementById(`pointEntries-${playerId}`);
+  if (collapseDiv && !collapseDiv.classList.contains('show')) {
+    console.log('Collapse not fully open yet, waiting...');
+    setTimeout(() => loadPointEntries(playerId), 200);
+    return;
+  }
   
   // Show loading message
   contentDiv.innerHTML = '<div class="text-center"><i class="fas fa-spinner fa-spin"></i> Hleður stigayfirlit...</div>';
@@ -271,6 +279,15 @@ async function loadPointEntries(playerId) {
     contentDiv.innerHTML = entriesHtml;
     
     console.log('Content updated successfully. Current innerHTML length:', contentDiv.innerHTML.length);
+    
+    // Double-check the content is still there after a short delay
+    setTimeout(() => {
+      console.log('Double-checking content after 500ms. Current innerHTML length:', contentDiv.innerHTML.length);
+      if (contentDiv.innerHTML.includes('Hleður stigayfirlit')) {
+        console.error('Content was overridden! Trying to set it again...');
+        contentDiv.innerHTML = entriesHtml;
+      }
+    }, 500);
     
   } catch (err) {
     console.error('Error loading point entries:', err);
