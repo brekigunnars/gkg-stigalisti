@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { ensureAuthenticated, ensureAdmin } = require('../config/auth');
 const User = require('../models/User');
+const PointEntry = require('../models/PointEntry');
 const mongoose = require('mongoose');
 
 // Welcome Page - Public leaderboard
@@ -66,6 +67,68 @@ router.get('/stigareglur', (req, res) => {
     title: 'Stigareglur',
     user: req.user || null
   });
+});
+
+// Player Profile Page - Public access to see point breakdown
+router.get('/player/:id', async (req, res) => {
+  try {
+    const playerId = req.params.id;
+    
+    // Get the player details
+    const player = await User.findById(playerId).select('name gender points pointsLastUpdated');
+    if (!player) {
+      return res.status(404).render('error', {
+        title: 'Kylfingur fannst ekki',
+        message: 'Kylfingurinn sem þú ert að leita að er ekki til.',
+        user: req.user || null
+      });
+    }
+    
+    // Get all point entries for this player, sorted by most recent first
+    const pointEntries = await PointEntry.find({ userId: playerId })
+      .populate('addedBy', 'name')
+      .sort({ createdAt: -1 });
+    
+    res.render('player-profile', {
+      player,
+      pointEntries,
+      title: `${player.name} - Stigayfirlit`,
+      user: req.user || null
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).render('error', {
+      title: 'Villa kom upp',
+      message: 'Villa kom upp við að sækja upplýsingar um kylfing.',
+      user: req.user || null
+    });
+  }
+});
+
+// API endpoint to get point entries for a player (for dropdown functionality)
+router.get('/api/player/:id/point-entries', async (req, res) => {
+  try {
+    const playerId = req.params.id;
+    
+    // Validate player exists
+    const player = await User.findById(playerId).select('name');
+    if (!player) {
+      return res.status(404).json({ error: 'Kylfingur fannst ekki' });
+    }
+    
+    // Get all point entries for this player, sorted by most recent first
+    const pointEntries = await PointEntry.find({ userId: playerId })
+      .populate('addedBy', 'name')
+      .sort({ createdAt: -1 });
+    
+    res.json({
+      player: player.name,
+      pointEntries
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Villa kom upp við að sækja stigayfirlit' });
+  }
 });
 
 // Debug route - only in development

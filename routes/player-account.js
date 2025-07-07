@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const User = require('../models/User');
+const PointEntry = require('../models/PointEntry');
 const { ensureAuthenticated } = require('../config/auth');
 
 // Middleware to check if user is a player
@@ -37,8 +38,23 @@ router.post('/update-points', ensureAuthenticated, isPlayer, async (req, res) =>
       return res.redirect('/player-account/dashboard');
     }
 
+    if (!notes || notes.trim() === '') {
+      req.flash('error', 'Athugasemd er nauðsynleg');
+      return res.redirect('/player-account/dashboard');
+    }
+
     // Fetch user and update points
     const user = await User.findById(req.user._id);
+
+    // Create point entry record
+    await PointEntry.create({
+      userId: user._id,
+      points: pointsDelta,
+      comment: notes.trim(),
+      addedBy: user._id // Player added it themselves
+    });
+
+    // Update user's total points
     user.points += pointsDelta;
     user.pointsLastUpdated = Date.now();
     await user.save();
@@ -47,12 +63,7 @@ router.post('/update-points', ensureAuthenticated, isPlayer, async (req, res) =>
       ? `Bætti við ${pointsDelta} stigum` 
       : `Dró frá ${Math.abs(pointsDelta)} stig`;
     
-    if (notes) {
-      req.flash('success', `${message} - ${notes}`);
-    } else {
-      req.flash('success', message);
-    }
-    
+    req.flash('success', `${message} - ${notes}`);
     res.redirect('/player-account/dashboard');
   } catch (err) {
     console.error(err);

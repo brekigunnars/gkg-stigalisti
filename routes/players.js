@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { ensureAuthenticated, ensureAdmin } = require('../config/auth');
 const User = require('../models/User');
+const PointEntry = require('../models/PointEntry');
 const bcrypt = require('bcryptjs');
 
 // Get all players (admin only)
@@ -159,6 +160,11 @@ router.post('/:id/update-points', ensureAdmin, async (req, res) => {
       return res.redirect('/manage-points');
     }
 
+    if (!notes || notes.trim() === '') {
+      req.flash('error', 'Athugasemd er nauðsynleg');
+      return res.redirect('/manage-points');
+    }
+
     // Fetch user and update points
     const user = await User.findById(req.params.id);
     if (!user) {
@@ -166,6 +172,15 @@ router.post('/:id/update-points', ensureAdmin, async (req, res) => {
       return res.redirect('/manage-points');
     }
 
+    // Create point entry record
+    await PointEntry.create({
+      userId: user._id,
+      points: pointsDelta,
+      comment: notes.trim(),
+      addedBy: req.user._id
+    });
+
+    // Update user's total points
     user.points += pointsDelta;
     user.pointsLastUpdated = Date.now();
     await user.save();
@@ -174,12 +189,7 @@ router.post('/:id/update-points', ensureAdmin, async (req, res) => {
       ? `Bætti við ${pointsDelta} stigum hjá ${user.name}` 
       : `Dró frá ${Math.abs(pointsDelta)} stig hjá ${user.name}`;
     
-    if (notes) {
-      req.flash('success', `${message} - ${notes}`);
-    } else {
-      req.flash('success', message);
-    }
-    
+    req.flash('success', `${message} - ${notes}`);
     res.redirect('/manage-points');
   } catch (err) {
     console.error(err);
