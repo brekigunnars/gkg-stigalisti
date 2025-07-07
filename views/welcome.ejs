@@ -201,14 +201,6 @@ async function loadPointEntries(playerId) {
   
   console.log('Content div found:', contentDiv);
   
-  // Check if the collapse is visible
-  const collapseDiv = document.getElementById(`pointEntries-${playerId}`);
-  if (collapseDiv && !collapseDiv.classList.contains('show')) {
-    console.log('Collapse not fully open yet, waiting...');
-    setTimeout(() => loadPointEntries(playerId), 200);
-    return;
-  }
-  
   // Show loading message
   contentDiv.innerHTML = '<div class="text-center"><i class="fas fa-spinner fa-spin"></i> Hleður stigayfirlit...</div>';
   console.log('Loading message set');
@@ -276,16 +268,28 @@ async function loadPointEntries(playerId) {
     console.log('Generated HTML:', entriesHtml.substring(0, 200) + '...');
     console.log('Setting innerHTML...');
     
+    // Force the content update multiple times to override Bootstrap
     contentDiv.innerHTML = entriesHtml;
     
     console.log('Content updated successfully. Current innerHTML length:', contentDiv.innerHTML.length);
     
-    // Double-check the content is still there after a short delay
+    // Force update again after a delay to ensure it sticks
     setTimeout(() => {
-      console.log('Double-checking content after 500ms. Current innerHTML length:', contentDiv.innerHTML.length);
-      if (contentDiv.innerHTML.includes('Hleður stigayfirlit')) {
-        console.error('Content was overridden! Trying to set it again...');
+      console.log('Double-checking content after 100ms. Current innerHTML length:', contentDiv.innerHTML.length);
+      if (contentDiv.innerHTML.includes('Hleður stigayfirlit') || contentDiv.innerHTML.includes('spinner')) {
+        console.error('Content was overridden! Forcing update again...');
         contentDiv.innerHTML = entriesHtml;
+        console.log('Content forced again. New length:', contentDiv.innerHTML.length);
+      }
+    }, 100);
+    
+    // Triple check after longer delay
+    setTimeout(() => {
+      console.log('Triple-checking content after 500ms. Current innerHTML length:', contentDiv.innerHTML.length);
+      if (contentDiv.innerHTML.includes('Hleður stigayfirlit') || contentDiv.innerHTML.includes('spinner')) {
+        console.error('Content was overridden again! Final force update...');
+        contentDiv.innerHTML = entriesHtml;
+        console.log('Final content update. New length:', contentDiv.innerHTML.length);
       }
     }, 500);
     
